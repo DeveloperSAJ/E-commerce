@@ -1,19 +1,23 @@
 import express from 'express';
+import {
+  addOrderItems,
+  getOrderById,
+  updateOrderToPaid,
+  updateOrderToDelivered,
+  getUserOrders,
+  getAllOrders,
+} from '../controllers/orderController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-// POST /api/orders/checkout - create new order & payment processing
-router.post('/checkout', (req, res) => {
-  res.status(200).json({ message: 'Checkout endpoint' });
-});
+router.post('/', protect, addOrderItems);
+router.get('/myorders', protect, getUserOrders);
+router.get('/:id', protect, getOrderById);
+router.put('/:id/pay', protect, updateOrderToPaid);
+router.put('/:id/deliver', protect, admin, updateOrderToDelivered);
 
-// GET /api/orders/:id - get order details
-router.get('/:id', (req, res) => {
-  res.status(200).json({ message: `Get order ${req.params.id} details` });
-});
-
-// GET /api/orders - get all user orders
-router.get('/', (req, res) => {
-  res.status(200).json({ message: 'List user orders endpoint' });
-});
+// Admin route to get all orders
+router.get('/', protect, admin, getAllOrders);
 
 export default router;
