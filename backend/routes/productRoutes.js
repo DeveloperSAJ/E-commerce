@@ -1,29 +1,27 @@
 import express from 'express';
+import {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  searchProducts,
+  filterProducts,
+} from '../controllers/productController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-// GET /api/products - list with filters & search
-router.get('/', (req, res) => {
-  res.status(200).json({ message: 'List products endpoint' });
-});
+// Public Routes
+router.get('/', getAllProducts);
+router.get('/search', searchProducts);
+router.get('/filter', filterProducts);
+router.get('/:id', getProductById);
 
-// GET /api/products/:id - get product details
-router.get('/:id', (req, res) => {
-  res.status(200).json({ message: `Get product ${req.params.id} details` });
-});
+// Admin Routes
+router.post('/', protect, admin, createProduct);
+router.put('/:id', protect, admin, updateProduct);
+router.delete('/:id', protect, admin, deleteProduct);
 
-// POST /api/products - create product (admin only)
-router.post('/', (req, res) => {
-  res.status(200).json({ message: 'Create product endpoint' });
-});
-
-// PUT /api/products/:id - update product (admin only)
-router.put('/:id', (req, res) => {
-  res.status(200).json({ message: `Update product ${req.params.id}` });
-});
-
-// DELETE /api/products/:id - delete product (admin only)
-router.delete('/:id', (req, res) => {
-  res.status(200).json({ message: `Delete product ${req.params.id}` });
-});
 
 export default router;
