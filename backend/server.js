@@ -1,62 +1,66 @@
 import express from 'express';
-import cors from 'cors';
+import dotenv from 'dotenv';
 import morgan from 'morgan';
-import mongoose from 'mongoose';
-import "dotenv/config";
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
+import ConnectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import brandRoutes from './routes/brandRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
+import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
+
 // Load environment variables
+dotenv.config();
+
+// Connect to MongoDB
+ConnectDB();
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(morgan('dev'));
-app.use(express.json()); // Parse JSON bodies
+// Middlewares
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+app.use(express.json());
+app.use(cookieParser());
 
-// Database connection
-const DB_URI = process.env.MONGO_URI;
+// Logging only in development mode
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-mongoose
-  .connect(DB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
-
-// API Routes
+// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/brands', brandRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health check endpoint
+// Health check route
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'Watchify API is running' });
+  res.status(200).json({ status: 'OK', message: 'Watchify API is running' });
 });
 
-// 404 middleware
-app.use((req, res) => {
-  res.status(404).json({ message: 'API endpoint not found' });
-});
+// Custom error middlewares
+app.use(notFound);
+app.use(errorHandler);
 
-// Error handler middleware
-app.use((err, req, res, next) => {
-  console.error('💥 Error:', err);
-  const status = err.status || 500;
-  res.status(status).json({ message: err.message || 'Internal Server Error' });
-});
-
-// Start server
+// Define PORT from env or fallback
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(
+    `Watchify backend running in ${process.env.NODE_ENV} mode on port ${PORT}`
+  );
 });

@@ -1,12 +1,22 @@
-import User from "../models/userModel.js";
+import User from "../models/User.js";
 import Order from "../models/Order.js";
 
-// @desc    Create a new order
-// @route   POST /api/orders
-// @access  Private (authenticated users)
+/**
+ * @desc    Create a new order
+ * @route   POST /api/orders
+ * @access  Private
+ */
 export const createOrder = async (req, res) => {
   try {
-    const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice } = req.body;
+    const {
+      orderItems,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      taxPrice,
+      shippingPrice,
+      totalPrice
+    } = req.body;
 
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -33,9 +43,11 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// @desc    Get logged in user's orders
-// @route   GET /api/orders/myorders
-// @access  Private
+/**
+ * @desc    Get logged in user's orders
+ * @route   GET /api/orders/myorders
+ * @access  Private
+ */
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -45,21 +57,27 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
-// @desc    Get all orders (Admin)
-// @route   GET /api/orders
-// @access  Admin
+/**
+ * @desc    Get all orders (Admin)
+ * @route   GET /api/orders
+ * @access  Admin
+ */
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('user', 'id name email').sort({ createdAt: -1 });
+    const orders = await Order.find()
+      .populate('user', 'id name email')
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error while fetching all orders.', error: error.message });
   }
 };
 
-// @desc    Get order by ID
-// @route   GET /api/orders/:id
-// @access  Private (owner or admin)
+/**
+ * @desc    Get order by ID
+ * @route   GET /api/orders/:id
+ * @access  Private (owner or admin)
+ */
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('user', 'name email');
@@ -78,9 +96,11 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// @desc    Update order to paid
-// @route   PUT /api/orders/:id/pay
-// @access  Private (owner or admin)
+/**
+ * @desc    Update order to paid
+ * @route   PUT /api/orders/:id/pay
+ * @access  Private (owner or admin)
+ */
 export const updateOrderToPaid = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -88,7 +108,7 @@ export const updateOrderToPaid = async (req, res) => {
       return res.status(404).json({ message: 'Order not found.' });
     }
 
-    // Authorization logic
+    // Authorization check
     if (order.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
       return res.status(403).json({ message: 'Not authorized to update this order.' });
     }
@@ -96,7 +116,7 @@ export const updateOrderToPaid = async (req, res) => {
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
-      id: req.body.id || '', // payment gateway transaction id
+      id: req.body.id || '',          // payment gateway transaction id
       status: req.body.status || '',
       update_time: req.body.update_time || '',
       email_address: req.body.email_address || '',
@@ -110,9 +130,11 @@ export const updateOrderToPaid = async (req, res) => {
   }
 };
 
-// @desc    Update order to delivered
-// @route   PUT /api/orders/:id/deliver
-// @access  Admin
+/**
+ * @desc    Update order to delivered
+ * @route   PUT /api/orders/:id/deliver
+ * @access  Admin
+ */
 export const updateOrderToDelivered = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

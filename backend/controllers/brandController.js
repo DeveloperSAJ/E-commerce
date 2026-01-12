@@ -1,4 +1,4 @@
-import Brand from "../models/Brand.js";
+import Brand from '../models/Brand.js';
 
 // @desc    Create a new brand
 // @route   POST /api/brands
@@ -18,7 +18,9 @@ export const createBrand = async (req, res) => {
 
     res.status(201).json(brand);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while creating brand.', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Server error while creating brand.', error: error.message });
   }
 };
 
@@ -30,7 +32,9 @@ export const getBrands = async (req, res) => {
     const brands = await Brand.find();
     res.json(brands);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching brands.', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Server error while fetching brands.', error: error.message });
   }
 };
 
@@ -45,7 +49,9 @@ export const getBrandById = async (req, res) => {
     }
     res.json(brand);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching brand.', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Server error while fetching brand.', error: error.message });
   }
 };
 
@@ -55,8 +61,8 @@ export const getBrandById = async (req, res) => {
 export const updateBrand = async (req, res) => {
   try {
     const { name, description, logoUrl } = req.body;
-    const brand = await Brand.findById(req.params.id);
 
+    const brand = await Brand.findById(req.params.id);
     if (!brand) {
       return res.status(404).json({ message: 'Brand not found.' });
     }
@@ -69,7 +75,9 @@ export const updateBrand = async (req, res) => {
 
     res.json(brand);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while updating brand.', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Server error while updating brand.', error: error.message });
   }
 };
 
@@ -87,6 +95,8 @@ export const deleteBrand = async (req, res) => {
 
     res.json({ message: 'Brand deleted successfully.' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error while deleting brand.', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Server error while deleting brand.', error: error.message });
   }
 };

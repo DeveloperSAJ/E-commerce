@@ -1,15 +1,16 @@
 import express from 'express';
 import {
-  createStripeCheckoutSession,
-  createPayPalOrder,
-  capturePayPalOrder,
+  createStripePaymentIntent,
+  confirmPayPalPayment,
 } from '../controllers/paymentController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/stripe-session', protect, createStripeCheckoutSession);
-router.post('/paypal-order', protect, createPayPalOrder);
-router.post('/paypal-capture', protect, capturePayPalOrder);
+// Stripe Payment Intent creation route
+router.post('/stripe-intent', protect, createStripePaymentIntent);
+
+// PayPal payment confirmation route
+router.post('/paypal-confirm', protect, confirmPayPalPayment);
 
 export default router;

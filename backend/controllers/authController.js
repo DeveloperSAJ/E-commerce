@@ -1,17 +1,10 @@
-import User from '../models/userModel.js';
-import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from 'google-auth-library';
+import generateToken from '../utils/generateToken.js';
 
-// Google OAuth client ID from your environment variables
+// Google OAuth client instance
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// Generate JWT token helper
-const generateToken = (id, isAdmin = false) => {
-  return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
-};
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -61,6 +54,7 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // Find user by email
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -94,16 +88,19 @@ export const googleAuth = async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, sub: googleId } = payload;
 
-    // Find or create user
+    // Check if user exists
     let user = await User.findOne({ email });
 
     if (!user) {
+      // Create user with a random hashed password (to satisfy schema), googleAuth flag optional
+      const tempPassword = await bcrypt.hash(googleId, 10);
+
       user = await User.create({
         name,
         email,
-        password: googleId, // store googleId hashed or just plaintext? Here for example only
+        password: tempPassword,
         isAdmin: false,
-        googleAuth: true, // optional flag if you want
+        googleAuth: true, // Optional schema flag
       });
     }
 
