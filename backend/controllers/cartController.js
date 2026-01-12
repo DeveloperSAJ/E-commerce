@@ -5,9 +5,10 @@ import Cart from "../models/Cart.js";
 // @access  Private
 export const getCart = async (req, res) => {
   try {
-    let cart = await Cart.findOne({ user: req.user._id }).populate('items.product', 'name price brand images');
+    let cart = await Cart.findOne({ user: req.user._id })
+      .populate('items.product', 'name price brand images');
+      
     if (!cart) {
-      // No cart found, return empty
       return res.json({ items: [] });
     }
     res.json(cart);
@@ -16,14 +17,14 @@ export const getCart = async (req, res) => {
   }
 };
 
-// @desc    Add or update a product in cart
+// @desc    Add or update a product in cart (upsert)
 // @route   POST /api/cart
 // @access  Private
 export const addOrUpdateCartItem = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
-    if (!productId || !quantity) {
+    if (!productId || quantity == null) {
       return res.status(400).json({ message: 'Product ID and quantity are required.' });
     }
 
@@ -37,20 +38,66 @@ export const addOrUpdateCartItem = async (req, res) => {
     } else {
       const itemIndex = cart.items.findIndex(i => i.product.toString() === productId);
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity = quantity; // Update quantity
-        if (quantity <= 0) cart.items.splice(itemIndex, 1); // Remove if zero
+        cart.items[itemIndex].quantity = quantity;
+        if (quantity <= 0) {
+          cart.items.splice(itemIndex, 1);
+        }
       } else {
-        if (quantity > 0) cart.items.push({ product: productId, quantity });
+        if (quantity > 0) {
+          cart.items.push({ product: productId, quantity });
+        }
       }
     }
 
     await cart.save();
 
-    let populatedCart = await Cart.findById(cart._id).populate('items.product', 'name price brand images');
+    const populatedCart = await Cart.findById(cart._id)
+      .populate('items.product', 'name price brand images');
 
     res.json(populatedCart);
   } catch (error) {
     res.status(500).json({ message: 'Server error while updating cart.', error: error.message });
+  }
+};
+
+// @desc    Update quantity of a cart item
+// @route   PUT /api/cart/:productId
+// @access  Private
+export const updateCartItem = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { quantity } = req.body;
+
+    if (quantity == null) {
+      return res.status(400).json({ message: 'Quantity is required.' });
+    }
+
+    let cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found.' });
+    }
+
+    const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart.' });
+    }
+
+    if (quantity <= 0) {
+      cart.items.splice(itemIndex, 1);
+    } else {
+      cart.items[itemIndex].quantity = quantity;
+    }
+
+    await cart.save();
+
+    const populatedCart = await Cart.findById(cart._id)
+      .populate('items.product', 'name price brand images');
+
+    res.json(populatedCart);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error while updating cart item.', error: error.message });
   }
 };
 
@@ -71,7 +118,8 @@ export const removeCartItem = async (req, res) => {
 
     await cart.save();
 
-    let populatedCart = await Cart.findById(cart._id).populate('items.product', 'name price brand images');
+    const populatedCart = await Cart.findById(cart._id)
+      .populate('items.product', 'name price brand images');
 
     res.json(populatedCart);
   } catch (error) {

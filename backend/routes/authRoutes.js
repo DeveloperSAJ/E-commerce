@@ -1,15 +1,16 @@
 import express from 'express';
-import { login, register, googleOAuth } from '../controllers/authController.js';
+import { registerUser, loginUser, googleAuth } from '../controllers/authController.js';
 
 const router = express.Router();
 
 // POST /api/auth/register
-router.post('/register', register);
+router.post('/register', registerUser);
 
 // POST /api/auth/login
-router.post('/login', login);
+router.post('/login', loginUser);
 
-// GET /api/auth/google - OAuth flow placeholder
-router.post('/google', googleOAuth);
+// POST /api/auth/google
+router.post('/google', googleAuth);
 
 export default router;
+

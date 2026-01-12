@@ -1,4 +1,4 @@
-import Product from '../models/productModel.js';
+import Product from '../models/Product.js';
 import asyncHandler from 'express-async-handler';
 
 /**
@@ -6,7 +6,7 @@ import asyncHandler from 'express-async-handler';
  * @route   POST /api/products
  * @access  Admin
  */
-const createProduct = asyncHandler(async (req, res) => {
+export const createProduct = asyncHandler(async (req, res) => {
   const {
     name,
     description,
@@ -42,7 +42,7 @@ const createProduct = asyncHandler(async (req, res) => {
  * @route   GET /api/products
  * @access  Public
  */
-const getProducts = asyncHandler(async (req, res) => {
+export const getProducts = asyncHandler(async (req, res) => {
   const pageSize = 12;
   const page = Number(req.query.pageNumber) || 1;
 
@@ -88,7 +88,7 @@ const getProducts = asyncHandler(async (req, res) => {
  * @route   GET /api/products/:id
  * @access  Public
  */
-const getProductById = asyncHandler(async (req, res) => {
+export const getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
     res.json(product);
@@ -103,7 +103,7 @@ const getProductById = asyncHandler(async (req, res) => {
  * @route   PUT /api/products/:id
  * @access  Admin
  */
-const updateProduct = asyncHandler(async (req, res) => {
+export const updateProduct = asyncHandler(async (req, res) => {
   const {
     name,
     description,
@@ -138,7 +138,7 @@ const updateProduct = asyncHandler(async (req, res) => {
  * @route   DELETE /api/products/:id
  * @access  Admin
  */
-const deleteProduct = asyncHandler(async (req, res) => {
+export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -150,10 +150,66 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-export {
-  createProduct,
-  getProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
+
+// @desc    Search products by keyword (name, description)
+// @route   GET /api/products/search
+// @access  Public
+export const searchProducts = async (req, res, next) => {
+  try {
+    const { keyword } = req.query;
+
+    if (!keyword || keyword.trim() === '') {
+      return res.status(400).json({ message: 'Search keyword is required' });
+    }
+
+    // Case-insensitive regex search on name and description
+    const regex = new RegExp(keyword, 'i');
+
+    const products = await Product.find({
+      $or: [{ name: regex }, { description: regex }],
+    }).populate('brand', 'name');
+
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
 };
+
+// @desc    Filter products by multiple criteria
+// @route   GET /api/products/filter
+// @access  Public
+export const filterProducts = async (req, res, next) => {
+  try {
+    const { brand, minPrice, maxPrice, category, minRating } = req.query;
+
+    // Build filter object dynamically
+    let filter = {};
+
+    if (brand) {
+      // Accept brand as brand id or name, assuming ID for clarity
+      filter.brand = brand;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (minRating) {
+      filter.rating = { $gte: Number(minRating) };
+    }
+
+    const products = await Product.find(filter).populate('brand', 'name');
+
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
+

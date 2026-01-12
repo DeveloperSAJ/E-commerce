@@ -1,6 +1,6 @@
-import User from '../models/userModel.js';
-import Product from '../models/productModel.js';
-import Order from '../models/orderModel.js';
+import User from '../models/User.js';
+import Product from '../models/Product.js';
+import Order from '../models/Order.js';
 
 // @desc    Get all users (admin only)
 // @route   GET /api/admin/users
@@ -35,14 +35,13 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// @desc    Get product stats (total count, by brand, etc.)
+// @desc    Get product stats (total count, by brand)
 // @route   GET /api/admin/product-stats
 // @access  Admin
 export const getProductStats = async (req, res) => {
   try {
     const totalProducts = await Product.countDocuments();
 
-    // Group by brand with counts
     const brandStats = await Product.aggregate([
       {
         $group: {
@@ -61,14 +60,14 @@ export const getProductStats = async (req, res) => {
   }
 };
 
-// @desc    Get order stats (total sales, orders count, recent orders...)
+// @desc    Get order stats (total sales, orders count, recent orders)
 // @route   GET /api/admin/order-stats
 // @access  Admin
 export const getOrderStats = async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
 
-    const totalSales = await Order.aggregate([
+    const totalSalesObj = await Order.aggregate([
       {
         $group: {
           _id: null,
@@ -77,7 +76,6 @@ export const getOrderStats = async (req, res) => {
       },
     ]);
 
-    // Last 5 orders example
     const recentOrders = await Order.find()
       .sort({ createdAt: -1 })
       .limit(5)
@@ -86,10 +84,25 @@ export const getOrderStats = async (req, res) => {
 
     res.json({
       totalOrders,
-      totalSales: totalSales[0]?.total || 0,
+      totalSales: totalSalesObj[0]?.total || 0,
       recentOrders,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// Placeholder for product controller functions (to be implemented elsewhere)
+// Provided here for import completeness as per your current adminRoutes
+export const createProduct = (req, res) => {
+  res.status(501).json({ message: 'Not implemented yet' });
+};
+export const updateProduct = (req, res) => {
+  res.status(501).json({ message: 'Not implemented yet' });
+};
+export const deleteProduct = (req, res) => {
+  res.status(501).json({ message: 'Not implemented yet' });
+};
+export const getAnalytics = (req, res) => {
+  res.status(501).json({ message: 'Not implemented yet' });
 };

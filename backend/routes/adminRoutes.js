@@ -4,25 +4,31 @@ import {
   updateProduct,
   deleteProduct,
   getAnalytics,
-  getAllUsers,
+  getUsers,
+  deleteUser,
+  getProductStats,
+  getOrderStats,
 } from '../controllers/adminController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
-
+import { protect } from '../middlewares/authMiddleware.js';
+import { admin } from '../middlewares/adminMiddleware.js';
 const router = express.Router();
 
-// Protect these routes and allow access only for admin users
+// Protect all routes and restrict to admin
 router.use(protect);
 router.use(admin);
 
-// CRUD for products
+// Product CRUD
 router.post('/products', createProduct);
 router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);
 
-// Admin dashboard analytics
+// Analytics routes
 router.get('/analytics', getAnalytics);
+router.get('/product-stats', getProductStats);
+router.get('/order-stats', getOrderStats);
 
 // Manage users
-router.get('/users', getAllUsers);
+router.get('/users', getUsers);
+router.delete('/users/:id', deleteUser);
 
 export default router;
