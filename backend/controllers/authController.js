@@ -1,9 +1,8 @@
-import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import { OAuth2Client } from 'google-auth-library';
-import generateToken from '../utils/generateToken.js';
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
+import generateToken from "../utils/generateToken.js";
 
-// Google OAuth client instance
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Register new user
@@ -86,13 +85,12 @@ export const googleAuth = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { email, name, sub: googleId } = payload;
+    const { email, name, sub: googleId, picture } = payload;
 
     // Check if user exists
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create user with a random hashed password (to satisfy schema), googleAuth flag optional
       const tempPassword = await bcrypt.hash(googleId, 10);
 
       user = await User.create({
@@ -100,7 +98,8 @@ export const googleAuth = async (req, res) => {
         email,
         password: tempPassword,
         isAdmin: false,
-        googleAuth: true, // Optional schema flag
+        googleAuth: true,
+        avatar: picture,
       });
     }
 
@@ -108,10 +107,12 @@ export const googleAuth = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      avatar: user.avatar, // send avatar to frontend
       isAdmin: user.isAdmin,
       token: generateToken(user._id, user.isAdmin),
     });
   } catch (error) {
-    res.status(401).json({ message: 'Google authentication failed' });
+    console.error(error);
+    res.status(401).json({ message: "Google authentication failed" });
   }
 };
