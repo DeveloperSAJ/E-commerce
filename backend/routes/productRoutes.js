@@ -5,8 +5,6 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  searchProducts,
-  filterProducts,
 } from '../controllers/productController.js';
 
 import { protect } from '../middlewares/authMiddleware.js';
@@ -16,8 +14,6 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getProducts);
-router.get('/search', searchProducts);
-router.get('/filter', filterProducts);
 router.get('/:id', getProductById);
 
 // Protected routes for admin only

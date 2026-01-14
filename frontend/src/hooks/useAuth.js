@@ -6,7 +6,7 @@ export default function useAuth() {
   const { user, loading } = useSelector((state) => state.auth);
 
   const isAuthenticated = !!user;
-  const isAdmin = user?.isAdmin || false;
+  const isAdmin = user?.role === "admin"; // ✅ use role instead of isAdmin
 
   const logoutUser = () => {
     dispatch(logout());

@@ -16,9 +16,11 @@ import Profile from "./pages/Profile";
 /* Admin Pages */
 import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
+import AddProduct from "./pages/AddProduct";
 import AdminBrands from "./pages/admin/Brands";
 import AdminOrders from "./pages/admin/Orders";
 import Analytics from "./pages/admin/Analytics";
+import Products from "./pages/admin/Products";
 
 export default function App() {
   return (
@@ -33,6 +35,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductPage />} />
 
           {/* User Protected */}
@@ -83,6 +86,14 @@ export default function App() {
             element={
               <ProtectedRoute admin>
                 <AdminProducts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products/add"
+            element={
+              <ProtectedRoute admin>
+                <AddProduct />
               </ProtectedRoute>
             }
           />

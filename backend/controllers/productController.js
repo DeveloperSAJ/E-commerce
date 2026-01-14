@@ -1,5 +1,5 @@
-import Product from '../models/Product.js';
-import asyncHandler from 'express-async-handler';
+import Product from "../models/Product.js";
+import asyncHandler from "express-async-handler";
 
 /**
  * @desc    Create a new product
@@ -11,34 +11,34 @@ export const createProduct = asyncHandler(async (req, res) => {
     name,
     description,
     brand,
-    category,
     price,
-    countInStock,
-    imageUrls,
+    stock,
+    images,
+    categories,
+    discount,
   } = req.body;
 
-  // Basic validation
-  if (!name || !brand || !price) {
+  if (!name || !brand || price == null) {
     res.status(400);
-    throw new Error('Please provide required fields: name, brand, price');
+    throw new Error("name, brand and price are required");
   }
 
-  const product = new Product({
+  const product = await Product.create({
     name,
     description,
     brand,
-    category,
     price,
-    countInStock,
-    imageUrls,
+    stock,
+    images,
+    categories,
+    discount,
   });
 
-  const createdProduct = await product.save();
-  res.status(201).json(createdProduct);
+  res.status(201).json(product);
 });
 
 /**
- * @desc    Get all products with search & filters
+ * @desc    Get all products (search + filters)
  * @route   GET /api/products
  * @access  Public
  */
@@ -47,40 +47,35 @@ export const getProducts = asyncHandler(async (req, res) => {
   const page = Number(req.query.pageNumber) || 1;
 
   const keyword = req.query.keyword
-    ? {
-        name: {
-          $regex: req.query.keyword,
-          $options: 'i',
-        },
-      }
+    ? { name: { $regex: req.query.keyword, $options: "i" } }
     : {};
 
   const brandFilter = req.query.brand ? { brand: req.query.brand } : {};
-  const categoryFilter = req.query.category ? { category: req.query.category } : {};
+  const categoryFilter = req.query.category
+    ? { categories: req.query.category }
+    : {};
 
-  // Price filter example: price[lte]=1000, price[gte]=500
   const priceFilter = {};
-  if (req.query['price[gte]']) priceFilter.$gte = Number(req.query['price[gte]']);
-  if (req.query['price[lte]']) priceFilter.$lte = Number(req.query['price[lte]']);
-  const priceCondition = Object.keys(priceFilter).length ? { price: priceFilter } : {};
+  if (req.query["price[gte]"]) priceFilter.$gte = Number(req.query["price[gte]"]);
+  if (req.query["price[lte]"]) priceFilter.$lte = Number(req.query["price[lte]"]);
+  const priceCondition =
+    Object.keys(priceFilter).length > 0 ? { price: priceFilter } : {};
 
-  const count = await Product.countDocuments({
+  const filter = {
     ...keyword,
     ...brandFilter,
     ...categoryFilter,
     ...priceCondition,
-  });
+  };
 
-  const products = await Product.find({
-    ...keyword,
-    ...brandFilter,
-    ...categoryFilter,
-    ...priceCondition,
-  })
+  const count = await Product.countDocuments(filter);
+
+  const products = await Product.find(filter)
+    .populate("brand", "name")
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json({ products, page, pages: Math.ceil(count / pageSize), count });
+  res.json(products); // ✅ frontend-friendly
 });
 
 /**
@@ -89,13 +84,17 @@ export const getProducts = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const getProductById = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (product) {
-    res.json(product);
-  } else {
+  const product = await Product.findById(req.params.id).populate(
+    "brand",
+    "name"
+  );
+
+  if (!product) {
     res.status(404);
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
+
+  res.json(product);
 });
 
 /**
@@ -104,33 +103,17 @@ export const getProductById = asyncHandler(async (req, res) => {
  * @access  Admin
  */
 export const updateProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    description,
-    brand,
-    category,
-    price,
-    countInStock,
-    imageUrls,
-  } = req.body;
-
   const product = await Product.findById(req.params.id);
 
-  if (product) {
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.brand = brand || product.brand;
-    product.category = category || product.category;
-    product.price = price ?? product.price; // price might be 0
-    product.countInStock = countInStock ?? product.countInStock;
-    product.imageUrls = imageUrls || product.imageUrls;
-
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
+  if (!product) {
     res.status(404);
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
+
+  Object.assign(product, req.body);
+
+  const updatedProduct = await product.save();
+  res.json(updatedProduct);
 });
 
 /**
@@ -141,75 +124,11 @@ export const updateProduct = asyncHandler(async (req, res) => {
 export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
-  if (product) {
-    await product.remove();
-    res.json({ message: 'Product removed' });
-  } else {
+  if (!product) {
     res.status(404);
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
+
+  await product.deleteOne();
+  res.json({ message: "Product removed" });
 });
-
-
-// @desc    Search products by keyword (name, description)
-// @route   GET /api/products/search
-// @access  Public
-export const searchProducts = async (req, res, next) => {
-  try {
-    const { keyword } = req.query;
-
-    if (!keyword || keyword.trim() === '') {
-      return res.status(400).json({ message: 'Search keyword is required' });
-    }
-
-    // Case-insensitive regex search on name and description
-    const regex = new RegExp(keyword, 'i');
-
-    const products = await Product.find({
-      $or: [{ name: regex }, { description: regex }],
-    }).populate('brand', 'name');
-
-    res.json(products);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Filter products by multiple criteria
-// @route   GET /api/products/filter
-// @access  Public
-export const filterProducts = async (req, res, next) => {
-  try {
-    const { brand, minPrice, maxPrice, category, minRating } = req.query;
-
-    // Build filter object dynamically
-    let filter = {};
-
-    if (brand) {
-      // Accept brand as brand id or name, assuming ID for clarity
-      filter.brand = brand;
-    }
-
-    if (category) {
-      filter.category = category;
-    }
-
-    if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
-    }
-
-    if (minRating) {
-      filter.rating = { $gte: Number(minRating) };
-    }
-
-    const products = await Product.find(filter).populate('brand', 'name');
-
-    res.json(products);
-  } catch (error) {
-    next(error);
-  }
-};
-
-

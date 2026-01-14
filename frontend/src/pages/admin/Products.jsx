@@ -3,10 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "../../components/admin/Sidebar";
 import { fetchProducts } from "../../features/products/productSlice";
 import { formatPrice } from "../../utils/helpers";
+import { Link } from "react-router-dom";
 
 export default function Products() {
   const dispatch = useDispatch();
   const { items = [], loading } = useSelector((state) => state.products);
+  const { user } = useSelector((state) => state.auth);
+
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -18,13 +21,16 @@ export default function Products() {
 
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#0A1F44]">
-            Products
-          </h1>
+          <h1 className="text-2xl font-bold text-[#0A1F44]">Products</h1>
 
-          <button className="bg-[#0A1F44] text-white px-4 py-2 rounded">
-            + Add Product
-          </button>
+          {user?.role === "admin" && (
+            <Link
+              to="/admin/products/add"
+              className="bg-[#0A1F44] text-white px-4 py-2 rounded hover:bg-[#08203a]"
+            >
+              + Add Product
+            </Link>
+          )}
         </div>
 
         <div className="border rounded-lg overflow-x-auto">
@@ -85,12 +91,8 @@ export default function Products() {
                   </td>
 
                   <td className="p-3 space-x-3">
-                    <button className="text-[#0A1F44]">
-                      Edit
-                    </button>
-                    <button className="text-red-500">
-                      Delete
-                    </button>
+                    <button className="text-[#0A1F44]">Edit</button>
+                    <button className="text-red-500">Delete</button>
                   </td>
                 </tr>
               ))}
