@@ -6,6 +6,7 @@ export default function Sidebar() {
       <nav className="space-y-3 text-lg flex flex-col">
         <Link to="/admin">Dashboard</Link>
         <Link to="/admin/products">Products</Link>
+        <Link to="/admin/brands">Brands</Link>
         <Link to="/admin/orders">Orders</Link>
         <Link to="/admin/analytics">Analytics</Link>
       </nav>

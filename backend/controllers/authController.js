@@ -10,6 +10,18 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // =====================
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
+  if(!name || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if(name.length < 3) {
+    return res.status(400).json({ message: "Name must be at least 3 characters" });
+  }
+  if(password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  if(!email.includes("@")) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
   try {
     const userExists = await User.findOne({ email });
@@ -49,6 +61,15 @@ export const registerUser = async (req, res) => {
 // =====================
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  if(!email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if(password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  if(!email.includes("@")) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
   try {
     const user = await User.findOne({ email });

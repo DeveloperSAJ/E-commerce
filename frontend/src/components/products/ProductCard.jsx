@@ -3,11 +3,11 @@ import { formatPrice } from "../../utils/helpers";
 
 export default function ProductCard({ product }) {
   return (
-    <div className="border rounded-lg p-4 hover:shadow-md transition">
+    <div className="border rounded-lg p-4 max-w-2xs hover:shadow-md transition">
       <img
-        src={product.image}
+        src={product.images?.[0]?.url || "/placeholder.png"}
         alt={product.name}
-        className="h-40 w-full object-cover rounded"
+        className="h-auto w-70 object-cover rounded"
       />
 
       <h3 className="mt-3 font-semibold text-[#0A1F44]">

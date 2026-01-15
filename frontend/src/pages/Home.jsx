@@ -16,8 +16,9 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-[#0A1F44] mb-6">
         Featured Watches
       </h1>
-
+      <div className="">
       <ProductList products={items} loading={loading} />
+      </div>
     </div>
   );
 }

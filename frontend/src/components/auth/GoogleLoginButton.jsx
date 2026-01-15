@@ -17,6 +17,7 @@ export default function GoogleLoginButton({ onSuccess }) {
         }
       }}
       onError={() => console.log("Google login failed")}
+      
     />
   );
 }

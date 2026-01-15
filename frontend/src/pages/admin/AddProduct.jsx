@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import api from "../app/api";
+import api from "../../app/api";
 
 export default function AddProduct() {
   const { token } = useSelector((state) => state.auth);

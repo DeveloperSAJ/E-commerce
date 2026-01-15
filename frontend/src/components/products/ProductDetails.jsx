@@ -4,22 +4,16 @@ export default function ProductDetails({ product, onAdd }) {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <img
-        src={product.image}
-        className="rounded-lg w-full"
+        src={product.images?.[0]?.url || "/placeholder.png"}
+        className="rounded-lg w-50 h-50"
       />
 
       <div>
-        <h1 className="text-2xl font-bold text-[#0A1F44]">
-          {product.name}
-        </h1>
+        <h1 className="text-2xl font-bold text-[#0A1F44]">{product.name}</h1>
 
-        <p className="text-[#6B7280] my-3">
-          {product.description}
-        </p>
+        <p className="text-[#6B7280] my-3">{product.description}</p>
 
-        <p className="font-semibold">
-          {formatPrice(product.price)}
-        </p>
+        <p className="font-semibold">{formatPrice(product.price)}</p>
 
         <button
           onClick={onAdd}

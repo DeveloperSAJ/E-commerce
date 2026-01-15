@@ -16,8 +16,9 @@ import Profile from "./pages/Profile";
 /* Admin Pages */
 import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
-import AddProduct from "./pages/AddProduct";
+import AddProduct from "./pages/admin/AddProduct";
 import AdminBrands from "./pages/admin/Brands";
+import AddBrand from "./pages/admin/AddBrand";
 import AdminOrders from "./pages/admin/Orders";
 import Analytics from "./pages/admin/Analytics";
 import Products from "./pages/admin/Products";
@@ -97,11 +98,25 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/admin/products/edit/:id" 
+          element={
+          <ProtectedRoute admin>
+            <AddProduct />
+          </ProtectedRoute>
+          } />
           <Route
             path="/admin/brands"
             element={
               <ProtectedRoute admin>
                 <AdminBrands />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/brands/add"
+            element={
+              <ProtectedRoute admin>
+                <AddBrand />
               </ProtectedRoute>
             }
           />
