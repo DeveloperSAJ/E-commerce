@@ -18,6 +18,7 @@ export const createBrand = async (req, res) => {
 
     res.status(201).json(brand);
   } catch (error) {
+    console.log(error);
     res
       .status(500)
       .json({ message: 'Server error while creating brand.', error: error.message });

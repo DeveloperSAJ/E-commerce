@@ -5,29 +5,38 @@ import generateToken from "../utils/generateToken.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// @desc    Register new user
-// @route   POST /api/auth/register
-// @access  Public
+// =====================
+// Register new user
+// =====================
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
+  if(!name || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if(name.length < 3) {
+    return res.status(400).json({ message: "Name must be at least 3 characters" });
+  }
+  if(password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  if(!email.includes("@")) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
   try {
-    // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      isAdmin: false,
+      role: "user", // default role
     });
 
     if (user) {
@@ -35,25 +44,34 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, user.isAdmin),
+        avatar: user.avatar,
+        role: user.role,
+        token: generateToken(user._id), // token generation can remain
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data' });
+      res.status(400).json({ message: "Invalid user data" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/auth/login
-// @access  Public
+// =====================
+// Login user
+// =====================
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  if(!email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if(password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  if(!email.includes("@")) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
   try {
-    // Find user by email
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -61,20 +79,21 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: generateToken(user._id, user.isAdmin),
+        avatar: user.avatar,
+        role: user.role,
+        token: generateToken(user._id),
       });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Google OAuth login/signup
-// @route   POST /api/auth/google
-// @access  Public
+// =====================
+// Google OAuth login/signup
+// =====================
 export const googleAuth = async (req, res) => {
   const { tokenId } = req.body;
 
@@ -87,7 +106,6 @@ export const googleAuth = async (req, res) => {
     const payload = ticket.getPayload();
     const { email, name, sub: googleId, picture } = payload;
 
-    // Check if user exists
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -97,9 +115,9 @@ export const googleAuth = async (req, res) => {
         name,
         email,
         password: tempPassword,
-        isAdmin: false,
         googleAuth: true,
         avatar: picture,
+        role: "user",
       });
     }
 
@@ -107,9 +125,9 @@ export const googleAuth = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      avatar: user.avatar, // send avatar to frontend
-      isAdmin: user.isAdmin,
-      token: generateToken(user._id, user.isAdmin),
+      avatar: user.avatar,
+      role: user.role,
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.error(error);

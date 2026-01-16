@@ -14,9 +14,9 @@ const brandSchema = new mongoose.Schema({
       trim: true,
       maxlength: 500,
     },
-    logo: {
+    logoUrl: {
       type: String,
-      default: null,
+      default: "",
     },
     slug: {
       type: String,
@@ -26,12 +26,12 @@ const brandSchema = new mongoose.Schema({
   }, { timestamps: true }
 );
 
-brandSchema.pre('save', function (next) {
+brandSchema.pre('save', async function () {
   if (this.isModified('name')) {
     this.slug = slugify(this.name, { lower: true, strict: true });
   }
-  next();
 });
+
 
 const Brand = mongoose.model("Brand", brandSchema);
 

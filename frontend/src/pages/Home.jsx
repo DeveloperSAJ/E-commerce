@@ -9,15 +9,55 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchProducts());
-  }, []);
+  }, [dispatch]);
+
+  // 🔹 Filters
+  const featured = items.slice(0, 4); // first 4 products
+  const appleWatches = items.filter(
+    (p) => p.brand?.name === "Apple"
+  );
+  const rolexWatches = items.filter(
+    (p) => p.brand?.name === "Rolex"
+  );
+  const jacobWatches = items.filter(
+    (p) => p.brand?.name === "Jacob"
+  );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-[#0A1F44] mb-6">
-        Featured Watches
-      </h1>
+    <div className="flex flex-col gap-14 px-4 py-8">
 
-      <ProductList products={items} loading={loading} />
+      {/* Featured */}
+      <section>
+        <h1 className="text-3xl text-center font-bold text-[#0A1F44] mb-6">
+          Featured Watches
+        </h1>
+        {/* <ProductList products={featured} loading={loading} /> */}
+      </section>
+
+      {/* Jacob */}
+      {/* <section>
+        <h2 className="text-2xl mx-auto font-bold text-[#0A1F44] mb-6">
+          Jacob Watches
+        </h2>
+        <ProductList products={jacobWatches} loading={loading} />
+      </section> */}
+
+      {/* Apple */}
+      <section>
+        <h2 className="text-2xl mx-auto font-bold text-[#0A1F44] mb-6">
+          Apple Watches
+        </h2>
+        <ProductList products={appleWatches} loading={loading} />
+      </section>
+
+      {/* Rolex */}
+      <section>
+        <h2 className="text-2xl mx-auto font-bold text-[#0A1F44] mb-6">
+          Rolex Collection
+        </h2>
+        <ProductList products={rolexWatches} loading={loading} />
+      </section>
+
     </div>
   );
 }

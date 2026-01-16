@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children, admin }) {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (admin && !user.isAdmin) {
+  if (admin && user.role !== "admin") {
     return <Navigate to="/" replace />;
   }
 

@@ -11,6 +11,7 @@ import {
 } from '../controllers/adminController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 import { admin } from '../middlewares/adminMiddleware.js';
+import { getAnalytics } from "../controllers/adminAnalyticsController.js";
 const router = express.Router();
 
 // Protect all routes and restrict to admin
@@ -30,5 +31,8 @@ router.get('/order-stats', getOrderStats);
 // Manage users
 router.get('/users', getUsers);
 router.delete('/users/:id', deleteUser);
+
+
+router.get("/analytics", protect, admin, getAnalytics);
 
 export default router;

@@ -1,13 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../app/api";
 
-export const fetchCart = createAsyncThunk(
-  "cart/fetch",
-  async (_, thunkAPI) => {
-    const res = await api.get("/cart");
-    return res.data;
-  }
-);
+export const fetchCart = createAsyncThunk("cart/fetch", async (_, thunkAPI) => {
+  const res = await api.get("/cart");
+  return res.data;
+});
 
 export const addToCart = createAsyncThunk(
   "cart/add",
@@ -20,8 +17,8 @@ export const addToCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   "cart/remove",
   async (productId, thunkAPI) => {
-    await api.delete(`/cart/${productId}`);
-    return productId;
+    const res = await api.delete(`/cart/${productId}`);
+    return res.data; // return the updated cart
   }
 );
 
@@ -45,9 +42,7 @@ const cartSlice = createSlice({
         state.items = action.payload.items;
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.items = state.items.filter(
-          (item) => item.product._id !== action.payload
-        );
+        state.items = action.payload.items;
       });
   },
 });
