@@ -3,6 +3,7 @@ import { loginUser, loginSuccess } from "../features/auth/authSlice";
 import LoginForm from "../components/auth/LoginForm";
 import GoogleLoginButton from "../components/auth/GoogleLoginButton";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; 
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -13,6 +14,7 @@ export default function Login() {
   const handleGoogleSuccess = (data) => {
     dispatch(loginSuccess(data)); // store user + JWT
     navigate("/"); // redirect to home or dashboard
+    toast.success("Login successful!");
   };
 
   return (

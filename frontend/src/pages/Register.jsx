@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import GoogleLoginButton from "../components/auth/GoogleLoginButton";
 import { loginSuccess } from "../features/auth/authSlice";
 import axios from "axios";
+import toast from "react-hot-toast"; 
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -15,14 +16,15 @@ export default function Register() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/auth/register",
+        "https://watchify-backend-delta.vercel.app/api/auth/register",
         formData
       );
       dispatch(loginSuccess(res.data)); // store user + JWT
       navigate("/"); // redirect to home/dashboard
+      toast.success("Registration successful!");
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
-      alert("Registration failed: " + (err.response?.data?.message || err.message));
+      toast.error("Registration failed: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }

@@ -21,8 +21,12 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/" className="hover:underline">Home</Link>
-          <Link to="/cart" className="hover:underline">Cart</Link>
+          <Link to="/" className="hover:underline">
+            Home
+          </Link>
+          <Link to="/cart" className="hover:underline">
+            Cart
+          </Link>
 
           {isAdmin && (
             <Link to="/admin/dashboard" className="hover:underline">
@@ -43,9 +47,7 @@ export default function Navbar() {
                 alt="Profile"
                 className="w-8 h-8 rounded-full border-2"
               />
-              <span className="text-sm hidden sm:block">
-                {user.name}
-              </span>
+              <span className="text-sm hidden sm:block">{user.name}</span>
             </div>
           ) : (
             <div className="hidden md:flex gap-3">
@@ -62,10 +64,7 @@ export default function Navbar() {
           )}
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-xl"
-            onClick={() => setOpen(true)}
-          >
+          <button className="md:hidden text-xl" onClick={() => setOpen(true)}>
             ☰
           </button>
         </div>
@@ -98,30 +97,43 @@ export default function Navbar() {
                   alt="Profile"
                 />
                 <div>
-                  <p className="font-semibold text-[#0A1F44]">
-                    {user.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {user.role}
-                  </p>
+                  <p className="font-semibold text-[#0A1F44]">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.role}</p>
                 </div>
               </div>
             )}
 
             {/* Links */}
-            <nav className="flex flex-col gap-4 text-[#0A1F44] font-medium">
-              <Link onClick={() => setOpen(false)} to="/">Home</Link>
-              <Link onClick={() => setOpen(false)} to="/cart">Cart</Link>
-
-              {isAdmin && (
-                <Link
-                  onClick={() => setOpen(false)}
-                  to="/admin/dashboard"
-                >
-                  Dashboard
+            {user ? (
+              <nav className="flex flex-col gap-4 text-[#0A1F44] font-medium">
+                <Link onClick={() => setOpen(false)} to="/">
+                  Home
                 </Link>
-              )}
-            </nav>
+                <Link onClick={() => setOpen(false)} to="/cart">
+                  Cart
+                </Link>
+                {isAdmin && (
+                  <Link onClick={() => setOpen(false)} to="/admin/dashboard">
+                    Dashboard
+                  </Link>
+                )}
+              </nav>
+            ) : (
+              <nav className="flex flex-col gap-4 text-[#0A1F44] font-medium">
+                <Link onClick={() => setOpen(false)} to="/">
+                  Home
+                </Link>
+                <Link onClick={() => setOpen(false)} to="/cart">
+                  Cart
+                </Link>
+                <Link onClick={() => setOpen(false)} to="/login">
+                  Login
+                </Link>
+                <Link onClick={() => setOpen(false)} to="/register">
+                  Register
+                </Link>
+              </nav>
+            )}
           </aside>
         </div>
       )}
