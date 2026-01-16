@@ -3,7 +3,6 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  getAnalytics,
   getUsers,
   deleteUser,
   getProductStats,
@@ -24,7 +23,7 @@ router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);
 
 // Analytics routes
-router.get('/analytics', getAnalytics);
+// router.get('/analytics', getAnalytics);
 router.get('/product-stats', getProductStats);
 router.get('/order-stats', getOrderStats);
 

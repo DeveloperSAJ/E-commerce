@@ -103,6 +103,3 @@ export const updateProduct = (req, res) => {
 export const deleteProduct = (req, res) => {
   res.status(501).json({ message: 'Not implemented yet' });
 };
-export const getAnalytics = (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-};

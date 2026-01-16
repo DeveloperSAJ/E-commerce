@@ -33,7 +33,7 @@ export default function Analytics() {
   const cards = [
     { title: "Total Users", value: data.totalUsers },
     { title: "Total Orders", value: data.totalOrders },
-    { title: "Revenue", value: `$${data.totalRevenue.toLocaleString()}` },
+    { title: "Revenue", value: data.totalRevenue },
     { title: "Total Watches", value: data.totalProducts },
   ];
 
