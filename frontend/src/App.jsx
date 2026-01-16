@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import { Toaster } from "react-hot-toast";
 
 /* Pages */
 import Home from "./pages/Home";
@@ -136,11 +137,20 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute admin>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
 
       {/* Footer */}
       <Footer />
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 }

@@ -19,7 +19,7 @@ export const truncate = (text, length = 100) => {
 // Calculate cart total
 export const calculateCartTotal = (items = []) => {
   return items.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (item.product?.price || 0) * item.quantity,
     0
   );
 };
