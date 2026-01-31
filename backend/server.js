@@ -27,7 +27,7 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: "http://localhost:5173", // https://watchify981.vercel.app'
+  origin: 'https://watchify981.vercel.app',
   credentials: true,
 }));
 
